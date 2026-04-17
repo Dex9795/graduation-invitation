@@ -14,6 +14,8 @@
       --bg-3: #1f6a9a;
       --ink: #ecf8ff;
       --danger: #ffb4b4;
+      --input-bg: rgba(255, 255, 255, 0.08);
+      --input-border: rgba(186, 243, 255, 0.46);
       --glass: rgba(14, 55, 96, 0.38);
       --glass-deep: rgba(8, 34, 66, 0.58);
       --glass-border: rgba(183, 240, 255, 0.32);
@@ -175,8 +177,8 @@
       width: 100%;
       height: 50px;
       border-radius: 16px;
-      border: 1px solid rgba(186, 243, 255, 0.46);
-      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
       box-shadow: inset 0 1px 0 rgba(214, 248, 255, 0.18), 0 14px 26px rgba(6, 22, 44, 0.26);
       backdrop-filter: blur(10px);
       color: var(--ink);
@@ -392,8 +394,6 @@
       z-index: 50;
       display: block;
       background: rgba(3, 18, 38, 0.5);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
     }
 
     .intro-stage {
@@ -405,6 +405,53 @@
       display: grid;
       justify-items: center;
       gap: 10px;
+    }
+
+    .intro-start {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      width: min(92vw, 460px);
+      display: grid;
+      justify-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .intro-open-btn {
+      width: min(82vw, 300px);
+      min-height: 76px;
+      border-radius: 999px;
+      border: 2px solid var(--input-border);
+      background: var(--input-bg);
+      box-shadow: inset 0 1px 0 rgba(214, 248, 255, 0.16), 0 12px 28px rgba(6, 22, 44, 0.34);
+      color: #ddf8ff;
+      font-size: clamp(1.7rem, 5.8vw, 2.05rem);
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-indent: 0.22em;
+      cursor: pointer;
+      transition: transform 160ms ease, filter 200ms ease;
+    }
+
+    .intro-open-btn:hover {
+      filter: brightness(1.06);
+    }
+
+    .intro-open-btn:active {
+      transform: translateY(1px) scale(0.995);
+    }
+
+    .intro-open-hint {
+      margin: 0;
+      font-size: clamp(0.84rem, 2.8vw, 1.02rem);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ddf8ff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     }
 
     #envelopeStage {
@@ -547,7 +594,12 @@
   </video>
 
   <section id="introOverlay" class="intro-overlay" aria-live="polite">
-    <div id="envelopeStage" class="intro-stage">
+    <div id="introStartStage" class="intro-start">
+      <button id="introStartBtn" class="intro-open-btn" type="button">OPEN</button>
+      <p class="intro-open-hint">Chạm để khám phá món quà bất ngờ</p>
+    </div>
+
+    <div id="envelopeStage" class="intro-stage hidden">
       <dotlottie-player
         id="envelopeIntro"
         class="intro-player"
@@ -578,7 +630,7 @@
   </section>
 
   <main class="page">
-    <section class="hero" id="heroSection">
+    <section class="hero hidden" id="heroSection">
       <h1 class="hero-title">Thư mời của Đỗ Quốc Tấn</h1>
 
       <form id="inviteForm" class="invite-form hidden" novalidate>
@@ -650,7 +702,8 @@
       backClickVoice: "beat.mp3", // Đổi voice nút Back tại đây
       introEnvelopeLottie: "./envelop reward opening.lottie",
       introGiftboxLottie: "./giftbox open.lottie",
-      mapEmbedUrl: "https://www.google.com/maps?q=Ho%20Chi%20Minh%20City%20University%20of%20Science&output=embed"
+      mapEmbedUrl:
+        "https://www.google.com/maps?q=Tr%C6%B0%E1%BB%9Dng%20%C4%90%E1%BA%A1i%20h%E1%BB%8Dc%20C%C3%B4ng%20Th%C6%B0%C6%A1ng%20Th%C3%A0nh%20ph%E1%BB%91%20H%E1%BB%93%20Ch%C3%AD%20Minh&output=embed"
     };
 
     const EVENT = {
@@ -802,6 +855,8 @@
     const guestInput = document.getElementById("guestInput");
     const errorMessage = document.getElementById("errorMessage");
     const introOverlay = document.getElementById("introOverlay");
+    const introStartStage = document.getElementById("introStartStage");
+    const introStartBtn = document.getElementById("introStartBtn");
     const envelopeStage = document.getElementById("envelopeStage");
     const envelopeIntro = document.getElementById("envelopeIntro");
     const introDialog = document.getElementById("introDialog");
@@ -825,12 +880,13 @@
     const storyCards = storySlides.map((slide) => slide.querySelector(".story-card"));
 
     const backgroundAudio = new Audio(ASSETS.backgroundMusic);
-    backgroundAudio.volume = 0.2;
+    backgroundAudio.volume = 1;
     backgroundAudio.loop = true;
     const backClickAudio = ASSETS.backClickVoice ? new Audio(ASSETS.backClickVoice) : null;
     if (backClickAudio) {
       backClickAudio.preload = "auto";
       backClickAudio.volume = 1;
+      backClickAudio.loop = false;
     }
 
     let liquidEnabled = false;
@@ -838,9 +894,11 @@
     let introDialogTimer = 0;
     let introGiftboxTimer = 0;
     let introInviteTimer = 0;
+    let shouldResumeBackgroundOnVisible = false;
 
     initPage();
     document.addEventListener("visibilitychange", handleVisibilityAudio);
+    document.addEventListener("pointerdown", handleUserAudioResume, { passive: true });
     window.addEventListener("pagehide", handlePageExitAudio);
     window.addEventListener("beforeunload", handlePageExitAudio);
     setupKeyboardGuard();
@@ -866,6 +924,7 @@
       runReveal();
     });
 
+    introStartBtn.addEventListener("click", handleIntroStart);
     introOverlay.addEventListener("click", handleIntroOverlayTap);
     introOkBtn.addEventListener("click", function (event) {
       event.stopPropagation();
@@ -874,6 +933,7 @@
     giftboxStage.addEventListener("click", handleGiftboxOpen);
 
     comeBackBtn.addEventListener("click", function () {
+      shouldResumeBackgroundOnVisible = false;
       stopAllAudio();
       playBackClickVoice();
       stopLiquidFlow();
@@ -1032,18 +1092,34 @@
     function setupIntroFlow() {
       clearIntroTimers();
       document.body.classList.add("invite-centered");
-      heroSection.classList.remove("hidden");
+      heroSection.classList.add("hidden");
       inviteForm.classList.add("hidden");
       introOverlay.classList.remove("hidden");
-      envelopeStage.classList.remove("hidden");
+      introStartStage.classList.remove("hidden");
+      envelopeStage.classList.add("hidden");
       giftboxStage.classList.remove("animate-in");
       introDialog.classList.add("hidden");
       introDialog.classList.remove("animate-in");
       giftboxStage.classList.add("hidden");
+      if (typeof envelopeIntro.stop === "function") {
+        envelopeIntro.stop();
+      }
+    }
+
+    function handleIntroStart(event) {
+      event.stopPropagation();
+      if (introStartStage.classList.contains("hidden")) {
+        return;
+      }
+      introStartStage.classList.add("hidden");
+      envelopeStage.classList.remove("hidden");
       safePlayLottie(envelopeIntro);
     }
 
     function handleIntroOverlayTap() {
+      if (!introStartStage.classList.contains("hidden")) {
+        return;
+      }
       if (envelopeStage.classList.contains("hidden")) {
         return;
       }
@@ -1114,6 +1190,7 @@
       stopAllAudio();
       backgroundAudio.currentTime = 0;
       safePlay(backgroundAudio);
+      shouldResumeBackgroundOnVisible = true;
 
       revealSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -1238,7 +1315,26 @@
 
     function handleVisibilityAudio() {
       if (document.hidden) {
-        stopAllAudio();
+        const revealIsVisible = !revealSection.classList.contains("hidden");
+        shouldResumeBackgroundOnVisible = revealIsVisible && !backgroundAudio.paused;
+        backgroundAudio.pause();
+        if (backClickAudio) {
+          backClickAudio.pause();
+        }
+        return;
+      }
+
+      if (shouldResumeBackgroundOnVisible && !revealSection.classList.contains("hidden")) {
+        safePlay(backgroundAudio);
+      }
+    }
+
+    function handleUserAudioResume() {
+      if (document.hidden || revealSection.classList.contains("hidden")) {
+        return;
+      }
+      if (shouldResumeBackgroundOnVisible && backgroundAudio.paused) {
+        safePlay(backgroundAudio);
       }
     }
 
@@ -1263,6 +1359,7 @@
       if (!backClickAudio) {
         return;
       }
+      backClickAudio.pause();
       backClickAudio.currentTime = 0;
       safePlay(backClickAudio);
     }
