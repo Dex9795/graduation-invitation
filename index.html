@@ -382,6 +382,7 @@
 
     .calendar-btn,
     .parking-btn,
+    .message-btn,
     .back-btn {
       width: 100%;
       height: 46px;
@@ -422,7 +423,15 @@
       cursor: pointer;
     }
 
+    .message-btn {
+      border: 1px solid rgba(184, 243, 255, 0.52);
+      background: linear-gradient(165deg, rgba(22, 83, 134, 0.6), rgba(14, 56, 99, 0.68));
+      box-shadow: inset 0 1px 0 rgba(232, 251, 255, 0.18);
+      cursor: pointer;
+    }
+
     .parking-btn span,
+    .message-btn span,
     .back-btn span {
       background: linear-gradient(90deg, #e7f8ff 0%, #8adfff 52%, #d9f5ff 100%);
       -webkit-background-clip: text;
@@ -726,7 +735,7 @@
 
     @media (min-width: 1024px) {
       .cta {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         align-items: center;
       }
     }
@@ -847,6 +856,9 @@
           <button id="parkingBtn" class="parking-btn" type="button">
             <span>Vị trí để xe</span>
           </button>
+          <a id="messageBtn" class="message-btn" href="#" target="_blank" rel="noopener noreferrer">
+            <span>Nhắn tin cho tôi</span>
+          </a>
           <button id="comeBackBtn" class="back-btn" type="button">
             <span>Quay lại</span>
           </button>
@@ -962,12 +974,16 @@
       "Nguyên Mai Xuân Thùy": "chi",
       "CLB Sách": "chi",
       "Đỗ Quốc Bảo": "anh",
-      "Văn Phận": "anh"
+      "Văn Phận": "anh",
+      "Mai Thị Thùy Trang": "cau"
     };
 
     // Nội dung popup "Vị trí để xe" (bạn có thể sửa tùy ý).
     const PARKING_POPUP_CONTENT =
       "Khu vực gửi xe đề xuất:\n- Vị trí 5 tầng trong trường\n- 86 Phạm Ngọc Thảo\n- 72/34 Dương Đức Hiền\n- Cổng sau Trường HUIT";
+
+    // COMMAND: thay link nút "Nhắn tin cho tôi" tại đây.
+    const MESSAGE_CONTACT_URL = "https://m.me/doquoctan514";
 
     const DEFAULT_GUEST_GROUP_CONFIG = {
       defaultGroup: "1",
@@ -1029,7 +1045,8 @@
         "48": ["./dsng/48/penci_xuan_thuy.jpg"],
         "49": ["./dsng/49/penci_nhu_quynh.jpg"],
         "50": ["./dsng/50/penci_quoc_bao.jpg"],
-        "51": ["./dsng/51/penci_van_phan.jpg"]
+        "51": ["./dsng/51/penci_van_phan.jpg"],
+        "52": ["./dsng/52/pencil_thuytrang.jpg"]
       },
       guests: {
         "Trần Thị Huệ": "0",
@@ -1101,7 +1118,8 @@
         "Nguyễn Thị Thu Hằng Cute": "39",
         "Như Quỳnh": "49",
         "Đỗ Quốc Bảo": "50",
-        "Văn Phan": "51"
+        "Văn Phan": "51",
+        "Mai Thị Thùy Trang": "52"
       }
     };
 
@@ -1173,6 +1191,7 @@
     const mapFrame = document.getElementById("mapFrame");
     const calendarBtn = document.getElementById("calendarBtn");
     const parkingBtn = document.getElementById("parkingBtn");
+    const messageBtn = document.getElementById("messageBtn");
     const comeBackBtn = document.getElementById("comeBackBtn");
     const parkingPopup = document.getElementById("parkingPopup");
     const parkingCloseBtn = document.getElementById("parkingCloseBtn");
@@ -1278,6 +1297,7 @@
 
       mapFrame.src = ASSETS.mapEmbedUrl;
       calendarBtn.href = buildGoogleCalendarUrl(EVENT);
+      messageBtn.href = MESSAGE_CONTACT_URL;
     }
 
     function buildGuestGroupLookup(guestsMap) {
