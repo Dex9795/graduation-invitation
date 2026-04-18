@@ -32,6 +32,11 @@
     body {
       margin: 0;
       min-height: 100%;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      overflow-x: clip;
+      overscroll-behavior-x: none;
     }
 
     html {
@@ -43,16 +48,17 @@
       font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
       color: var(--ink);
       overflow-x: hidden;
+      overflow-x: clip;
       background-color: #031226; /* Màu nền dự phòng trong lúc chờ load video */
+      touch-action: pan-y pinch-zoom;
     }
 
     /* CSS cho Background Video */
     .bg-video {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       z-index: -2;
       pointer-events: none; /* Không cho người dùng tương tác với video */
@@ -72,8 +78,11 @@
       position: relative;
       z-index: 1;
       width: min(1120px, 100%);
+      max-width: 100%;
       margin: 0 auto;
       padding: 12px 14px 32px;
+      overflow-x: hidden;
+      overflow-x: clip;
     }
 
     body.invite-centered .page {
@@ -234,10 +243,14 @@
     }
 
     .reveal {
+      width: 100%;
+      max-width: 100%;
       margin-top: 18px;
       opacity: 0;
       transform: translateY(24px) scale(0.99);
       transition: opacity 0.56s ease, transform 0.56s ease;
+      overflow-x: hidden;
+      overflow-x: clip;
     }
 
     .reveal.show {
@@ -246,23 +259,37 @@
     }
 
     .story-track {
+      width: 100%;
+      max-width: 100%;
       display: grid;
+      justify-items: center;
       gap: 0;
+      overflow-x: hidden;
+      overflow-x: clip;
     }
 
     .story-slide {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
       min-height: 100svh;
       display: grid;
       place-items: center;
       padding: clamp(8px, 2svh, 24px) 0;
       scroll-snap-align: center;
       scroll-snap-stop: always;
+      overflow-x: hidden;
+      overflow-x: clip;
+      touch-action: pan-y;
     }
 
     .story-card {
-      width: auto;
-      max-width: min(96vw, 1020px);
+      margin: 0;
+      width: min(91vw, 1020px);
+      max-width: min(91vw, 1020px);
       max-height: calc(100svh - clamp(16px, 4svh, 48px));
+      display: grid;
+      place-items: center;
       border-radius: clamp(18px, 2.8vw, 30px);
       border: 1px solid var(--glass-border);
       background: linear-gradient(150deg, rgba(18, 70, 121, 0.44), rgba(11, 52, 96, 0.6));
@@ -280,12 +307,14 @@
       box-shadow: 0 28px 70px rgba(0, 15, 34, 0.55), inset 0 1px 0 rgba(242, 253, 255, 0.16);
     }
 
-    .story-card img {
-      width: auto;
+    .story-card img,
+    .story-card video {
+      width: 100%;
       height: auto;
-      max-width: min(96vw, 1020px);
+      max-width: 100%;
       max-height: calc(100svh - clamp(16px, 4svh, 48px));
       display: block;
+      margin-inline: auto;
       object-fit: contain;
       object-position: center;
       border-radius: inherit;
@@ -293,6 +322,8 @@
     }
 
     .liquid-panel {
+      width: 100%;
+      max-width: 100%;
       min-height: 100svh;
       margin-top: 0;
       padding: clamp(8px, 2svh, 24px) 0;
@@ -303,6 +334,8 @@
       transition: opacity 0.56s ease, transform 0.56s ease;
       scroll-snap-align: center;
       scroll-snap-stop: always;
+      overflow-x: hidden;
+      overflow-x: clip;
     }
 
     .details-inner {
@@ -348,6 +381,7 @@
     }
 
     .calendar-btn,
+    .parking-btn,
     .back-btn {
       width: 100%;
       height: 46px;
@@ -381,11 +415,117 @@
       cursor: pointer;
     }
 
+    .parking-btn {
+      border: 1px solid rgba(184, 243, 255, 0.52);
+      background: linear-gradient(165deg, rgba(21, 86, 137, 0.62), rgba(10, 61, 104, 0.7));
+      box-shadow: inset 0 1px 0 rgba(232, 251, 255, 0.18);
+      cursor: pointer;
+    }
+
+    .parking-btn span,
     .back-btn span {
       background: linear-gradient(90deg, #e7f8ff 0%, #8adfff 52%, #d9f5ff 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+    }
+
+    .first-slide-hint {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(18px, 3.4svh, 30px);
+      transform: translateX(-50%);
+      margin: 0;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(186, 243, 255, 0.26);
+      background: rgba(2, 19, 38, 0.36);
+      color: #e6f9ff;
+      opacity: 0.5;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 85;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(1, 11, 24, 0.58);
+    }
+
+    .popup-card {
+      position: relative;
+      width: min(92vw, 460px);
+      max-width: 100%;
+      border-radius: 20px;
+      border: 1px solid rgba(186, 243, 255, 0.45);
+      background: linear-gradient(148deg, rgba(22, 74, 124, 0.88), rgba(10, 50, 92, 0.9));
+      box-shadow: 0 24px 54px rgba(0, 0, 0, 0.42);
+      padding: 18px 16px 16px;
+      color: var(--ink);
+      text-align: center;
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(190, 245, 255, 0.38);
+      background: rgba(255, 255, 255, 0.08);
+      color: #e8f9ff;
+      font-size: 1.2rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .popup-title {
+      margin: 4px 0 10px;
+      font-size: 1.06rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .popup-content {
+      margin: 0;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      font-size: 0.97rem;
+      color: #e8f8ff;
+      max-height: 54vh;
+      overflow: auto;
+      text-align: left;
+      padding: 2px 2px 4px;
+    }
+
+    .popup-actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .popup-btn {
+      min-width: 110px;
+      height: 42px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: #052346;
+      background: linear-gradient(95deg, #78dcff, #b7f6ff 58%, #ddffff);
+      box-shadow: 0 10px 20px rgba(7, 30, 64, 0.3);
     }
 
     .intro-overlay {
@@ -568,14 +708,25 @@
         min-height: 100svh;
       }
 
+      .story-card {
+        width: min(96vw, 1020px);
+        max-width: min(96vw, 1020px);
+      }
+
       .map-wrap iframe {
         height: 360px;
       }
     }
 
+    @media (max-width: 699px) {
+      .story-slide {
+        padding-inline: 0;
+      }
+    }
+
     @media (min-width: 1024px) {
       .cta {
-        grid-template-columns: 1fr 220px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         align-items: center;
       }
     }
@@ -634,7 +785,7 @@
       <h1 class="hero-title">Thư mời của Đỗ Quốc Tấn</h1>
 
       <form id="inviteForm" class="invite-form hidden" novalidate>
-        <input id="guestInput" class="input" type="text" placeholder="Nhập họ và tên" autocomplete="off" required />
+        <input id="guestInput" class="input" type="text" placeholder="Nhập họ và tên có dấu" autocomplete="off" required />
         <button class="button" type="submit">Mở Thiệp</button>
       </form>
 
@@ -647,11 +798,13 @@
           <figure class="story-card">
             <img id="slideImage1" alt="Ảnh 1" />
           </figure>
+          <p class="first-slide-hint">Kéo lên để xem thêm!</p>
         </article>
 
         <article class="story-slide">
           <figure class="story-card">
             <img id="slideImage2" alt="Ảnh 2" />
+            <video id="slideVideo2" class="hidden" playsinline muted loop autoplay preload="auto"></video>
           </figure>
         </article>
 
@@ -664,6 +817,12 @@
         <article class="story-slide">
           <figure class="story-card">
             <img id="slideImage4" alt="Ảnh 4" />
+          </figure>
+        </article>
+
+        <article class="story-slide">
+          <figure class="story-card">
+            <img id="slideImage5" alt="Ảnh 5" />
           </figure>
         </article>
       </div>
@@ -685,6 +844,9 @@
           <a id="calendarBtn" class="calendar-btn" href="#" target="_blank" rel="noopener noreferrer">
             <span>Thêm vào lịch</span>
           </a>
+          <button id="parkingBtn" class="parking-btn" type="button">
+            <span>Vị trí để xe</span>
+          </button>
           <button id="comeBackBtn" class="back-btn" type="button">
             <span>Quay lại</span>
           </button>
@@ -693,13 +855,40 @@
     </section>
   </main>
 
+  <section id="parkingPopup" class="popup-overlay hidden" role="dialog" aria-modal="true" aria-label="Vị trí để xe">
+    <div class="popup-card">
+      <button id="parkingCloseBtn" class="popup-close" type="button" aria-label="Đóng">×</button>
+      <h3 class="popup-title">Vị trí để xe</h3>
+      <p id="parkingPopupContent" class="popup-content"></p>
+      <div class="popup-actions">
+        <button id="parkingOkBtn" class="popup-btn" type="button">Ok</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="exitConfirmPopup" class="popup-overlay hidden" role="dialog" aria-modal="true" aria-label="Xác nhận quay lại">
+    <div class="popup-card">
+      <p class="popup-content" style="text-align:center;">Bạn muốn thoát ra xem của người khác đúng không???</p>
+      <div class="popup-actions">
+        <button id="exitConfirmYesBtn" class="popup-btn" type="button">Có</button>
+        <button id="exitConfirmKoBtn" class="popup-btn" type="button">Kó</button>
+      </div>
+    </div>
+  </section>
+
   <script src="./guest-groups.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
     // ===== Cấu hình thay ảnh/nhạc/map ở đây =====
     const ASSETS = {
-      backgroundMusic: "[LYRIC VIDEO] Như ngày hôm qua - Sơn Tùng M-TP - YouTube (mp3cut.net).mp3",
-      backClickVoice: "beat.mp3", // Đổi voice nút Back tại đây
+      introMusic: "./beat.mp3",
+      revealMusic: "./[LYRIC VIDEO] Như ngày hôm qua - Sơn Tùng M-TP - YouTube.mp3",
+      greetingVoices: {
+        anh: "./loichao/1_anh.MP3",
+        cau: "./loichao/2_cau.MP3",
+        chi: "./loichao/3_chi.MP3",
+        em: "./loichao/4_em.MP3"
+      },
       introEnvelopeLottie: "./envelop reward opening.lottie",
       introGiftboxLottie: "./giftbox open.lottie",
       mapEmbedUrl:
@@ -709,9 +898,9 @@
     const EVENT = {
       title: "Thư Mời Lễ Tốt Nghiệp Của Đỗ Quốc Tấn",
       description: "Thân mời bạn đến tham dự buổi lễ tốt nghiệp.",
-      location: "Ho Chi Minh City University of Science",
-      start: "2026-05-25T08:30:00+07:00",
-      end: "2026-05-25T11:00:00+07:00"
+      location: "Ho Chi Minh City University of Industry and Trade",
+      start: "2026-04-24T08:30:00+07:00",
+      end: "2026-04-24T11:00:00+07:00"
     };
 
     // Command chỉnh thời gian chuyển bước (đơn vị: ms)
@@ -721,26 +910,87 @@
       giftboxToInviteFormMs: 400
     };
 
+    // Mức giống nhau tối thiểu (0 -> 1) để chấp nhận tên gần đúng.
+    const NAME_MATCH_THRESHOLD = 0.25;
+    const DEFAULT_GUEST_RELATION_MAP = {
+      "Lê Văn Anh Quốc": "em",
+      "Nguyễn Thị Anh Thư": "em",
+      "Nguyễn Thị Ánh Tuyết": "cau",
+      "Nguyễn Bá Lực": "anh",
+      "Lê Huỳnh Bảo Trân": "chi",
+      "Nguyễn Thị Bích Ngọc": "em",
+      "Lê Đỗng Khuyết": "em",
+      "Mai Đức Tài": "cau",
+      "Nguyễn Đức Thịnh": "anh",
+      "Hồ Thị Hà Vy": "em",
+      "Nguyễn Thị Hoàng Ly": "cau",
+      "Hoàng Minh Thy": "em",
+      "Lê Huy Tuấn": "em",
+      "Trần Huỳnh Huyền Trang": "cau",
+      "Trịnh Thị Kim Chi": "cau",
+      "Lê Công": "anh",
+      "Nguyễn Trần Mai Quyên": "em",
+      "Trần Minh Hiếu": "cau",
+      "Trương Thị Mỹ Dung": "em",
+      "Nguyễn Thị Mỹ Hạnh": "em",
+      "Lâm Thị Mỹ Thuận": "em",
+      "Nguyễn Ngọc Anh": "em",
+      "Nguyễn Huỳnh Ngọc Thuận": "em",
+      "Nguyễn Thị Nhã Phương": "em",
+      "Phạm Ngọc Nhật Nguyên": "chi",
+      "Như Quỳnh": "em",
+      "Nguyễn Đặng Phương Thùy": "cau",
+      "Dương Quang Thắng": "cau",
+      "Hồ Quang Tính": "cau",
+      "Nguyễn Quốc Nghi": "cau",
+      "Trần Quốc Nghĩa": "em",
+      "Nguyễn Thanh Bình": "em",
+      "Phạm Thanh Ngân": "cau",
+      "Thái Thị Thanh Nhàn": "chi",
+      "Bùi Trần Thảo Ly": "cau",
+      "Nguyễn Thị Thảo Trinh": "cau",
+      "Lê Thị Thương": "cau",
+      "Nguyễn Thị Thu Hằng": "cau",
+      "Phạm Thị Thúy Vy": "chi",
+      "Nguyễn Ngô Trà My": "em",
+      "Hứa Trọng Phú": "em",
+      "Nguyễn Trung Dân": "anh",
+      "Nguyễn Đỗ Trung Quân": "em",
+      "Ngô Tuấn Kiệt": "em",
+      "Hoàng Thị Vân Anh": "em",
+      "Trịnh Văn Khan": "cau",
+      "Nguyên Mai Xuân Thùy": "chi",
+      "CLB Sách": "chi",
+      "Đỗ Quốc Bảo": "anh",
+      "Văn Phận": "anh"
+    };
+
+    // Nội dung popup "Vị trí để xe" (bạn có thể sửa tùy ý).
+    const PARKING_POPUP_CONTENT =
+      "Khu vực gửi xe đề xuất:\n- Vị trí 5 tầng trong trường\n- 86 Phạm Ngọc Thảo\n- 72/34 Dương Đức Hiền\n- Cổng sau Trường HUIT";
+
     const DEFAULT_GUEST_GROUP_CONFIG = {
       defaultGroup: "1",
       fixedSlides: {
         slide1: "./dsng/bo_anh/1_thumoi.jpg",
-        slide3: "./dsng/bo_anh/3_tiec.jpg",
-        slide4: "./dsng/bo_anh/4_camon.jpg"
+        slide2: "./dsng/bo_anh/2_avt.mp4",
+        slide4: "./dsng/bo_anh/4_tiec.jpg",
+        slide5: "./dsng/bo_anh/5_camon.jpg"
       },
       groups: {
+        "0": ["./dsng/0/penci_clb_sach.jpg"],
         "1": ["./dsng/1/penci_anh_quoc.jpg"],
         "2": ["./dsng/2/penci_anh_thu.jpg"],
         "3": ["./dsng/3/penci_anh_tuyet.jpg"],
         "4": ["./dsng/4/penci_ba_luc.jpg"],
         "5": ["./dsng/5/penci_bao_tran.jpg"],
         "6": ["./dsng/6/penci_bich_ngoc.jpg"],
-        "7": ["./dsng/7/penci_dong_khuyet.jpg"],
+        "7": ["./dsng/7/penci_dong_khiet.jpg"],
         "8": ["./dsng/8/penci_duc_tai.jpg"],
         "9": ["./dsng/9/penci_duc_thinh.jpg"],
         "10": ["./dsng/10/penci_ha_vy.jpg"],
         "11": ["./dsng/11/penci_hoang_ly.jpg"],
-        "12": ["./dsng/12/penci_minh_thy.jpg"],
+        "12": ["./dsng/12/penci_hoang_thy.jpg"],
         "13": ["./dsng/13/penci_huy_tuan.jpg"],
         "14": ["./dsng/14/penci_huyen_trang.jpg"],
         "15": ["./dsng/15/penci_kim_chi.jpg"],
@@ -759,7 +1009,7 @@
         "28": ["./dsng/28/penci_quang_thang.jpg"],
         "29": ["./dsng/29/penci_quang_tinh.jpg"],
         "30": ["./dsng/30/penci_quoc_nghi.jpg"],
-        "31": ["./dsng/31/penci_quoc_nghi.jpg"],
+        "31": ["./dsng/31/penci_quoc_nghia.jpg"],
         "32": ["./dsng/32/penci_thanh_binh.jpg"],
         "33": ["./dsng/33/penci_thanh_ngan.jpg"],
         "34": ["./dsng/34/penci_thanh_nhan.jpg"],
@@ -767,6 +1017,7 @@
         "36": ["./dsng/36/penci_thao_trinh.jpg"],
         "37": ["./dsng/37/penci_thi_thuong.jpg"],
         "38": ["./dsng/38/penci_thu_hang.jpg"],
+        "39": ["./dsng/39/penci_thu_hang_cute.jpg"],
         "40": ["./dsng/40/penci_thuy_vy.jpg"],
         "41": ["./dsng/41/penci_tra_my.jpg"],
         "42": ["./dsng/42/penci_trong_phu.jpg"],
@@ -775,9 +1026,32 @@
         "45": ["./dsng/45/penci_tuan_kiet.jpg"],
         "46": ["./dsng/46/penci_van_anh.jpg"],
         "47": ["./dsng/47/penci_van_khan.jpg"],
-        "48": ["./dsng/48/penci_xuan_thuy.jpg"]
+        "48": ["./dsng/48/penci_xuan_thuy.jpg"],
+        "49": ["./dsng/49/penci_nhu_quynh.jpg"],
+        "50": ["./dsng/50/penci_quoc_bao.jpg"],
+        "51": ["./dsng/51/penci_van_phan.jpg"]
       },
       guests: {
+        "Trần Thị Huệ": "0",
+        "Trường An": "0",
+        "Bùi Hồng Hà": "0",
+        "Bùi Thị Hồng Nhung": "0",
+        "Cẩm Tiên": "0",
+        "Hải Nhi": "0",
+        "Hoàng Anh": "0",
+        "Kim Khánh": "0",
+        "Kim Trúc": "0",
+        "Khánh Linh": "0",
+        "Minh Tuấn": "0",
+        "Ngọc Giàu": "0",
+        "Hữu Nhân": "0",
+        "Thiếu Hoa": "0",
+        "Thu Hoa": "0",
+        "Thùy Dương": "0",
+        "Mỹ Tiến": "0",
+        "Vinh": "0",
+        "Ngọc Thảo": "0",
+        "Vũ Minh Hiếu": "0",
         "Lê Văn Anh Quốc": "1",
         "Nguyễn Thị Anh Thư": "2",
         "Nguyễn Thị Ánh Tuyết": "3",
@@ -803,12 +1077,11 @@
         "Nguyễn Huỳnh Ngọc Thuận": "23",
         "Nguyễn Thị Nhã Phương": "24",
         "Phạm Ngọc Nhật Nguyên": "25",
-        "Như Quỳnh": "26",
         "Nguyễn Đặng Phương Thùy": "27",
         "Dương Quang Thắng": "28",
         "Hồ Quang Tính": "29",
         "Nguyễn Quốc Nghi": "30",
-        "Trần Quốc Nghi": "31",
+        "Trần Quốc Nghĩa": "31",
         "Nguyễn Thanh Bình": "32",
         "Phạm Thanh Ngân": "33",
         "Thái Thị Thanh Nhàn": "34",
@@ -824,7 +1097,11 @@
         "Ngô Tuấn Kiệt": "45",
         "Hoàng Thị Vân Anh": "46",
         "Trịnh Văn Khan": "47",
-        "Nguyên Mai Xuân Thùy": "48"
+        "Nguyễn Mai Xuân Thùy": "48",
+        "Nguyễn Thị Thu Hằng Cute": "39",
+        "Như Quỳnh": "49",
+        "Đỗ Quốc Bảo": "50",
+        "Văn Phan": "51"
       }
     };
 
@@ -832,22 +1109,41 @@
       window.GUEST_GROUP_CONFIG && typeof window.GUEST_GROUP_CONFIG === "object"
         ? window.GUEST_GROUP_CONFIG
         : {};
+    const externalGuestRelationConfig =
+      window.GUEST_RELATION_MAP && typeof window.GUEST_RELATION_MAP === "object"
+        ? window.GUEST_RELATION_MAP
+        : {};
     const guestImageGroups = {
+      ...DEFAULT_GUEST_GROUP_CONFIG.groups,
       ...(externalGuestGroupConfig.groups && typeof externalGuestGroupConfig.groups === "object"
         ? externalGuestGroupConfig.groups
-        : {}),
-      ...DEFAULT_GUEST_GROUP_CONFIG.groups
+        : {})
     };
-    const guestNameGroupMap =
-      externalGuestGroupConfig.guests && typeof externalGuestGroupConfig.guests === "object"
+    // Có thể thêm khách mời ở đây (mặc định) hoặc trong guest-groups.js.
+    const guestNameGroupMap = {
+      ...DEFAULT_GUEST_GROUP_CONFIG.guests,
+      ...(externalGuestGroupConfig.guests && typeof externalGuestGroupConfig.guests === "object"
         ? externalGuestGroupConfig.guests
-        : DEFAULT_GUEST_GROUP_CONFIG.guests;
-    // 1, 3, 4 luôn cố định theo bộ ảnh khung.
-    const fixedSlideConfig = DEFAULT_GUEST_GROUP_CONFIG.fixedSlides;
+        : {})
+    };
+    const guestRelationMap = {
+      ...DEFAULT_GUEST_RELATION_MAP,
+      ...externalGuestRelationConfig
+    };
+    // 1, 2, 4, 5 luôn cố định theo bộ ảnh khung.
+    const fixedSlideConfig = {
+      ...DEFAULT_GUEST_GROUP_CONFIG.fixedSlides,
+      ...(externalGuestGroupConfig.fixedSlides && typeof externalGuestGroupConfig.fixedSlides === "object"
+        ? externalGuestGroupConfig.fixedSlides
+        : {})
+    };
     const defaultGuestGroupId = String(
       externalGuestGroupConfig.defaultGroup || DEFAULT_GUEST_GROUP_CONFIG.defaultGroup
     );
     const guestGroupLookup = buildGuestGroupLookup(guestNameGroupMap);
+    const guestNameEntries = buildGuestNameEntries(guestNameGroupMap);
+    const guestRelationLookup = buildGuestRelationLookup(guestRelationMap);
+    const guestRelationEntries = buildGuestRelationEntries(guestRelationMap);
     const fixedSlides = resolveFixedSlides();
 
     const heroSection = document.getElementById("heroSection");
@@ -869,25 +1165,35 @@
 
     const slideImage1 = document.getElementById("slideImage1");
     const slideImage2 = document.getElementById("slideImage2");
+    const slideVideo2 = document.getElementById("slideVideo2");
     const slideImage3 = document.getElementById("slideImage3");
     const slideImage4 = document.getElementById("slideImage4");
+    const slideImage5 = document.getElementById("slideImage5");
 
     const mapFrame = document.getElementById("mapFrame");
     const calendarBtn = document.getElementById("calendarBtn");
+    const parkingBtn = document.getElementById("parkingBtn");
     const comeBackBtn = document.getElementById("comeBackBtn");
+    const parkingPopup = document.getElementById("parkingPopup");
+    const parkingCloseBtn = document.getElementById("parkingCloseBtn");
+    const parkingOkBtn = document.getElementById("parkingOkBtn");
+    const parkingPopupContent = document.getElementById("parkingPopupContent");
+    const exitConfirmPopup = document.getElementById("exitConfirmPopup");
+    const exitConfirmYesBtn = document.getElementById("exitConfirmYesBtn");
+    const exitConfirmKoBtn = document.getElementById("exitConfirmKoBtn");
 
     const storySlides = Array.from(document.querySelectorAll(".story-slide"));
     const storyCards = storySlides.map((slide) => slide.querySelector(".story-card"));
 
-    const backgroundAudio = new Audio(ASSETS.backgroundMusic);
-    backgroundAudio.volume = 1;
-    backgroundAudio.loop = true;
-    const backClickAudio = ASSETS.backClickVoice ? new Audio(ASSETS.backClickVoice) : null;
-    if (backClickAudio) {
-      backClickAudio.preload = "auto";
-      backClickAudio.volume = 1;
-      backClickAudio.loop = false;
-    }
+    const introAudio = new Audio(ASSETS.introMusic);
+    introAudio.volume = 1;
+    introAudio.loop = true;
+    const revealAudio = new Audio(ASSETS.revealMusic);
+    revealAudio.volume = 1;
+    revealAudio.loop = true;
+    const greetingAudios = buildGreetingAudios(ASSETS.greetingVoices);
+    let currentMusicAudio = introAudio;
+    let activeGreetingAudio = null;
 
     let liquidEnabled = false;
     let liquidRaf = 0;
@@ -895,6 +1201,7 @@
     let introGiftboxTimer = 0;
     let introInviteTimer = 0;
     let shouldResumeBackgroundOnVisible = false;
+    let shouldResumeGreetingOnVisible = false;
 
     initPage();
     document.addEventListener("visibilitychange", handleVisibilityAudio);
@@ -914,14 +1221,21 @@
         return;
       }
 
-      const guestSlide2 = resolveSlidesForGuest(rawInput);
-      if (!guestSlide2) {
-        showError("Tên chưa có trong danh sách hoặc chưa được gán nhóm ảnh.");
+      const guestProfile = resolveGuestProfile(rawInput);
+      if (!guestProfile) {
+        showError("Tên chưa có trong danh sách hoặc nhập chưa đúng.");
         return;
       }
 
-      applyGuestSlides(guestSlide2);
-      runReveal();
+      const guestSlide3 = resolveSlidesByGroupId(guestProfile.groupId);
+      if (!guestSlide3) {
+        showError("Tên chưa có trong danh sách hoặc nhập chưa đúng.");
+        return;
+      }
+
+      const relationKey = resolveRelationForProfile(guestProfile, rawInput);
+      applyGuestSlides(guestSlide3);
+      runReveal(relationKey);
     });
 
     introStartBtn.addEventListener("click", handleIntroStart);
@@ -931,39 +1245,36 @@
       handleIntroOk();
     });
     giftboxStage.addEventListener("click", handleGiftboxOpen);
+    parkingBtn.addEventListener("click", openParkingPopup);
+    parkingCloseBtn.addEventListener("click", closeParkingPopup);
+    parkingOkBtn.addEventListener("click", closeParkingPopup);
+    parkingPopup.addEventListener("click", function (event) {
+      if (event.target === parkingPopup) {
+        closeParkingPopup();
+      }
+    });
+    exitConfirmYesBtn.addEventListener("click", returnToInviteFromReveal);
+    exitConfirmKoBtn.addEventListener("click", returnToInviteFromReveal);
+    exitConfirmPopup.addEventListener("click", function (event) {
+      if (event.target === exitConfirmPopup) {
+        returnToInviteFromReveal();
+      }
+    });
 
     comeBackBtn.addEventListener("click", function () {
-      shouldResumeBackgroundOnVisible = false;
-      stopAllAudio();
-      playBackClickVoice();
-      stopLiquidFlow();
-      resetStoryMorph();
-      clearIntroTimers();
-
-      document.body.classList.add("invite-centered");
-      heroSection.classList.remove("hidden");
-      inviteForm.classList.remove("hidden");
-      heroSection.classList.remove("opened");
-      revealSection.classList.add("hidden");
-      revealSection.classList.remove("show");
-      revealSection.setAttribute("aria-hidden", "true");
-      detailsSection.classList.add("hidden");
-      detailsSection.classList.remove("show");
-      detailsSection.setAttribute("aria-hidden", "true");
-
-      clearError();
-      guestInput.focus();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      openExitConfirmPopup();
     });
 
     function initPage() {
-      const defaultSlide2 =
+      const defaultSlide3 =
         resolveSlidesByGroupId(defaultGuestGroupId) ||
         resolveSlidesByGroupId(DEFAULT_GUEST_GROUP_CONFIG.defaultGroup) ||
         null;
-      applyGuestSlides(defaultSlide2);
+      applyGuestSlides(defaultSlide3);
       envelopeIntro.setAttribute("src", ASSETS.introEnvelopeLottie);
       giftboxIntro.setAttribute("src", ASSETS.introGiftboxLottie);
+      parkingPopupContent.textContent = PARKING_POPUP_CONTENT;
+      switchToIntroMusic();
 
       mapFrame.src = ASSETS.mapEmbedUrl;
       calendarBtn.href = buildGoogleCalendarUrl(EVENT);
@@ -979,6 +1290,239 @@
         lookup[normalizedGuestName] = String(groupId);
       });
       return lookup;
+    }
+
+    function buildGuestNameEntries(guestsMap) {
+      return Object.entries(guestsMap || {})
+        .map(([guestName, groupId]) => {
+          const normalizedGuestName = normalizeNameToCode(guestName);
+          if (!normalizedGuestName) {
+            return null;
+          }
+          return {
+            normalizedGuestName,
+            groupId: String(groupId)
+          };
+        })
+        .filter(Boolean);
+    }
+
+    function buildGuestRelationLookup(relationsMap) {
+      const lookup = {};
+      Object.entries(relationsMap || {}).forEach(([guestName, relationKey]) => {
+        const normalizedGuestName = normalizeNameToCode(guestName);
+        const normalizedRelationKey = normalizeRelationKey(relationKey);
+        if (!normalizedGuestName || !normalizedRelationKey) {
+          return;
+        }
+        lookup[normalizedGuestName] = normalizedRelationKey;
+      });
+      return lookup;
+    }
+
+    function buildGuestRelationEntries(relationsMap) {
+      return Object.entries(relationsMap || {})
+        .map(([guestName, relationKey]) => {
+          const normalizedGuestName = normalizeNameToCode(guestName);
+          const normalizedRelationKey = normalizeRelationKey(relationKey);
+          if (!normalizedGuestName || !normalizedRelationKey) {
+            return null;
+          }
+          return {
+            normalizedGuestName,
+            relationKey: normalizedRelationKey
+          };
+        })
+        .filter(Boolean);
+    }
+
+    function resolveGuestProfile(guestName) {
+      const normalizedGuestName = normalizeNameToCode(guestName);
+      if (!normalizedGuestName) {
+        return null;
+      }
+
+      const exactGroupId = guestGroupLookup[normalizedGuestName];
+      if (exactGroupId) {
+        return {
+          groupId: exactGroupId,
+          normalizedGuestName
+        };
+      }
+
+      const containmentMatches = guestNameEntries
+        .map((entry) => ({
+          entry,
+          score: calculateContainmentScore(normalizedGuestName, entry.normalizedGuestName)
+        }))
+        .filter((item) => item.score > 0)
+        .sort((a, b) => {
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+          return b.entry.normalizedGuestName.length - a.entry.normalizedGuestName.length;
+        });
+      if (containmentMatches.length > 0 && containmentMatches[0].score >= NAME_MATCH_THRESHOLD) {
+        return {
+          groupId: containmentMatches[0].entry.groupId,
+          normalizedGuestName: containmentMatches[0].entry.normalizedGuestName
+        };
+      }
+
+      let bestMatch = null;
+      let bestScore = 0;
+      guestNameEntries.forEach((entry) => {
+        const similarity = calculateNameSimilarity(normalizedGuestName, entry.normalizedGuestName);
+        const bonus = entry.groupId === "0" ? 0.02 : 0;
+        const score = similarity + bonus;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = entry;
+        }
+      });
+
+      if (bestMatch && bestScore >= NAME_MATCH_THRESHOLD) {
+        return {
+          groupId: bestMatch.groupId,
+          normalizedGuestName: bestMatch.normalizedGuestName
+        };
+      }
+      return null;
+    }
+
+    function resolveGroupIdForGuest(guestName) {
+      const guestProfile = resolveGuestProfile(guestName);
+      return guestProfile ? guestProfile.groupId : null;
+    }
+
+    function resolveRelationForProfile(guestProfile, rawInput) {
+      if (guestProfile && String(guestProfile.groupId) === "0") {
+        return "cau";
+      }
+      if (guestProfile && guestProfile.normalizedGuestName) {
+        const relationByMatchedGuest = guestRelationLookup[guestProfile.normalizedGuestName];
+        if (relationByMatchedGuest) {
+          return relationByMatchedGuest;
+        }
+      }
+      return resolveRelationForGuest(rawInput);
+    }
+
+    function resolveRelationForGuest(guestName) {
+      const normalizedGuestName = normalizeNameToCode(guestName);
+      if (!normalizedGuestName) {
+        return null;
+      }
+
+      const exactRelation = guestRelationLookup[normalizedGuestName];
+      if (exactRelation) {
+        return exactRelation;
+      }
+
+      const containmentMatches = guestRelationEntries
+        .map((entry) => ({
+          entry,
+          score: calculateContainmentScore(normalizedGuestName, entry.normalizedGuestName)
+        }))
+        .filter((item) => item.score > 0)
+        .sort((a, b) => {
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+          return b.entry.normalizedGuestName.length - a.entry.normalizedGuestName.length;
+        });
+      if (containmentMatches.length > 0 && containmentMatches[0].score >= NAME_MATCH_THRESHOLD) {
+        return containmentMatches[0].entry.relationKey;
+      }
+
+      let bestMatch = null;
+      let bestScore = 0;
+      guestRelationEntries.forEach((entry) => {
+        const score = calculateNameSimilarity(normalizedGuestName, entry.normalizedGuestName);
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = entry;
+        }
+      });
+
+      if (bestMatch && bestScore >= NAME_MATCH_THRESHOLD) {
+        return bestMatch.relationKey;
+      }
+      return null;
+    }
+
+    function calculateContainmentScore(input, target) {
+      if (!input || !target) {
+        return 0;
+      }
+      const minLen = Math.min(input.length, target.length);
+      if (minLen < 4) {
+        return 0;
+      }
+      if (input.includes(target)) {
+        return target.length / input.length;
+      }
+      if (target.includes(input)) {
+        return input.length / target.length;
+      }
+      return 0;
+    }
+
+    function calculateNameSimilarity(input, target) {
+      if (!input || !target) {
+        return 0;
+      }
+      if (input === target) {
+        return 1;
+      }
+
+      const maxLen = Math.max(input.length, target.length);
+      if (maxLen === 0) {
+        return 1;
+      }
+
+      const distance = levenshteinDistance(input, target);
+      const editSimilarity = 1 - distance / maxLen;
+      const containmentSimilarity =
+        input.includes(target) || target.includes(input)
+          ? Math.min(input.length, target.length) / maxLen
+          : 0;
+      const headSimilarity =
+        input.startsWith(target) || target.startsWith(input)
+          ? Math.min(input.length, target.length) / maxLen
+          : 0;
+      const tailSimilarity =
+        input.endsWith(target) || target.endsWith(input)
+          ? Math.min(input.length, target.length) / maxLen
+          : 0;
+
+      return Math.max(editSimilarity, containmentSimilarity, headSimilarity, tailSimilarity);
+    }
+
+    function levenshteinDistance(a, b) {
+      const rows = a.length + 1;
+      const cols = b.length + 1;
+      const matrix = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+      for (let i = 0; i < rows; i += 1) {
+        matrix[i][0] = i;
+      }
+      for (let j = 0; j < cols; j += 1) {
+        matrix[0][j] = j;
+      }
+
+      for (let i = 1; i < rows; i += 1) {
+        for (let j = 1; j < cols; j += 1) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j - 1] + cost
+          );
+        }
+      }
+
+      return matrix[rows - 1][cols - 1];
     }
 
     function normalizeSlideList(rawSlides) {
@@ -1008,17 +1552,26 @@
       return trimmed.length > 0 ? trimmed : null;
     }
 
+    function isVideoSource(path) {
+      if (!path || typeof path !== "string") {
+        return false;
+      }
+      return /\.(mp4|webm|ogg|mov)$/i.test(path);
+    }
+
     function resolveFixedSlides() {
       const fixedSlide1 = normalizeImagePath(fixedSlideConfig && fixedSlideConfig.slide1);
-      const fixedSlide3 = normalizeImagePath(fixedSlideConfig && fixedSlideConfig.slide3);
+      const fixedSlide2 = normalizeImagePath(fixedSlideConfig && fixedSlideConfig.slide2);
       const fixedSlide4 = normalizeImagePath(fixedSlideConfig && fixedSlideConfig.slide4);
-      const fixedFallback = fixedSlide1 || fixedSlide3 || fixedSlide4;
+      const fixedSlide5 = normalizeImagePath(fixedSlideConfig && fixedSlideConfig.slide5);
+      const fixedFallback = fixedSlide1 || fixedSlide4 || fixedSlide5 || fixedSlide2;
 
       if (fixedFallback) {
         return {
           slide1: fixedSlide1 || fixedFallback,
-          slide3: fixedSlide3 || fixedFallback,
+          slide2: fixedSlide2 || fixedFallback,
           slide4: fixedSlide4 || fixedFallback,
+          slide5: fixedSlide5 || fixedFallback,
           fallback: fixedFallback
         };
       }
@@ -1030,8 +1583,9 @@
       const fallback = defaultSlides[0];
       return {
         slide1: defaultSlides[0] || fallback,
-        slide3: defaultSlides[2] || fallback,
+        slide2: defaultSlides[1] || fallback,
         slide4: defaultSlides[3] || fallback,
+        slide5: defaultSlides[4] || fallback,
         fallback
       };
     }
@@ -1042,36 +1596,34 @@
       if (!slides) {
         return null;
       }
-      // Chỉ lấy một ảnh đại diện của nhóm để gắn vào vị trí ảnh số 2.
+      // Chỉ lấy một ảnh đại diện của nhóm để gắn vào vị trí ảnh số 3.
       return slides[0] || null;
     }
 
     function resolveSlidesForGuest(guestName) {
-      const normalizedGuestName = normalizeNameToCode(guestName);
-      if (!normalizedGuestName) {
-        return null;
-      }
-      const groupId = guestGroupLookup[normalizedGuestName];
+      const groupId = resolveGroupIdForGuest(guestName);
       if (!groupId) {
         return null;
       }
       return resolveSlidesByGroupId(groupId);
     }
 
-    function applyGuestSlides(slide2Image) {
-      const fallback = fixedSlides && fixedSlides.fallback ? fixedSlides.fallback : slide2Image;
+    function applyGuestSlides(slide3Image) {
+      const fallback = fixedSlides && fixedSlides.fallback ? fixedSlides.fallback : slide3Image;
       if (!fallback) {
         return;
       }
       const fixedSlide1 = fixedSlides && fixedSlides.slide1 ? fixedSlides.slide1 : fallback;
-      const fixedSlide3 = fixedSlides && fixedSlides.slide3 ? fixedSlides.slide3 : fallback;
+      const fixedSlide2 = fixedSlides && fixedSlides.slide2 ? fixedSlides.slide2 : fallback;
       const fixedSlide4 = fixedSlides && fixedSlides.slide4 ? fixedSlides.slide4 : fallback;
-      const resolvedSlide2 = slide2Image || fallback;
+      const fixedSlide5 = fixedSlides && fixedSlides.slide5 ? fixedSlides.slide5 : fallback;
+      const resolvedSlide3 = slide3Image || fallback;
 
       setImageWithFallback(slideImage1, fixedSlide1, fallback);
-      setImageWithFallback(slideImage2, resolvedSlide2, fallback);
-      setImageWithFallback(slideImage3, fixedSlide3, fallback);
+      setSlide2Media(fixedSlide2, fallback);
+      setImageWithFallback(slideImage3, resolvedSlide3, fallback);
       setImageWithFallback(slideImage4, fixedSlide4, fallback);
+      setImageWithFallback(slideImage5, fixedSlide5, fallback);
     }
 
     function clearIntroTimers() {
@@ -1104,6 +1656,7 @@
       if (typeof envelopeIntro.stop === "function") {
         envelopeIntro.stop();
       }
+      switchToIntroMusic();
     }
 
     function handleIntroStart(event) {
@@ -1114,6 +1667,7 @@
       introStartStage.classList.add("hidden");
       envelopeStage.classList.remove("hidden");
       safePlayLottie(envelopeIntro);
+      switchToIntroMusic();
     }
 
     function handleIntroOverlayTap() {
@@ -1168,7 +1722,52 @@
       }, INTRO_TIMING.giftboxToInviteFormMs);
     }
 
-    function runReveal() {
+    function openParkingPopup() {
+      parkingPopup.classList.remove("hidden");
+    }
+
+    function closeParkingPopup() {
+      parkingPopup.classList.add("hidden");
+    }
+
+    function openExitConfirmPopup() {
+      exitConfirmPopup.classList.remove("hidden");
+    }
+
+    function closeExitConfirmPopup() {
+      exitConfirmPopup.classList.add("hidden");
+    }
+
+    function returnToInviteFromReveal() {
+      closeExitConfirmPopup();
+      closeParkingPopup();
+      shouldResumeBackgroundOnVisible = false;
+      stopAllAudio();
+      stopLiquidFlow();
+      resetStoryMorph();
+      clearIntroTimers();
+
+      document.body.classList.add("invite-centered");
+      heroSection.classList.remove("hidden");
+      inviteForm.classList.remove("hidden");
+      heroSection.classList.remove("opened");
+      revealSection.classList.add("hidden");
+      revealSection.classList.remove("show");
+      revealSection.setAttribute("aria-hidden", "true");
+      detailsSection.classList.add("hidden");
+      detailsSection.classList.remove("show");
+      detailsSection.setAttribute("aria-hidden", "true");
+      introOverlay.classList.add("hidden");
+
+      clearError();
+      switchToIntroMusic();
+      guestInput.focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function runReveal(relationKey) {
+      closeParkingPopup();
+      closeExitConfirmPopup();
       clearIntroTimers();
       document.body.classList.remove("invite-centered");
       inviteForm.classList.add("hidden");
@@ -1187,10 +1786,9 @@
       requestLiquidTick();
       launchConfetti();
 
-      stopAllAudio();
-      backgroundAudio.currentTime = 0;
-      safePlay(backgroundAudio);
-      shouldResumeBackgroundOnVisible = true;
+      switchToRevealMusic();
+      playGreetingOnce(relationKey);
+      ensureSlide2AutoPlay();
 
       revealSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -1303,38 +1901,141 @@
       })();
     }
 
-    function stopAllAudio() {
-      backgroundAudio.pause();
-      backgroundAudio.currentTime = 0;
+    function playGreetingOnce(relationKey) {
+      const normalizedRelationKey = normalizeRelationKey(relationKey);
+      const greetingAudio = normalizedRelationKey ? greetingAudios[normalizedRelationKey] : null;
 
-      if (backClickAudio) {
-        backClickAudio.pause();
-        backClickAudio.currentTime = 0;
+      if (!greetingAudio) {
+        return;
       }
+
+      Object.values(greetingAudios).forEach((audio) => {
+        if (!audio || audio === greetingAudio) {
+          return;
+        }
+        audio.pause();
+        audio.currentTime = 0;
+        audio.onended = null;
+      });
+
+      shouldResumeGreetingOnVisible = true;
+      activeGreetingAudio = greetingAudio;
+      greetingAudio.currentTime = 0;
+      greetingAudio.onended = () => {
+        greetingAudio.onended = null;
+        if (activeGreetingAudio === greetingAudio) {
+          activeGreetingAudio = null;
+        }
+        shouldResumeGreetingOnVisible = false;
+      };
+
+      safePlay(greetingAudio, () => {
+        greetingAudio.onended = null;
+        if (activeGreetingAudio === greetingAudio) {
+          activeGreetingAudio = null;
+        }
+        shouldResumeGreetingOnVisible = false;
+      });
+    }
+
+    function switchToIntroMusic() {
+      switchMusicTrack(introAudio);
+    }
+
+    function switchToRevealMusic() {
+      switchMusicTrack(revealAudio);
+    }
+
+    function switchMusicTrack(nextAudio) {
+      if (!nextAudio) {
+        return;
+      }
+
+      if (activeGreetingAudio) {
+        activeGreetingAudio.pause();
+        activeGreetingAudio.currentTime = 0;
+        activeGreetingAudio.onended = null;
+        activeGreetingAudio = null;
+      }
+      shouldResumeGreetingOnVisible = false;
+
+      if (currentMusicAudio !== nextAudio) {
+        [introAudio, revealAudio].forEach((audio) => {
+          if (audio !== nextAudio) {
+            audio.pause();
+            audio.currentTime = 0;
+          }
+        });
+        nextAudio.currentTime = 0;
+        currentMusicAudio = nextAudio;
+      }
+
+      shouldResumeBackgroundOnVisible = true;
+      safePlay(nextAudio);
+    }
+
+    function stopAllAudio() {
+      [introAudio, revealAudio, ...Object.values(greetingAudios)].forEach((audio) => {
+        if (!audio) {
+          return;
+        }
+        audio.pause();
+        audio.currentTime = 0;
+        audio.onended = null;
+      });
+      activeGreetingAudio = null;
+      shouldResumeBackgroundOnVisible = false;
+      shouldResumeGreetingOnVisible = false;
     }
 
     function handleVisibilityAudio() {
       if (document.hidden) {
-        const revealIsVisible = !revealSection.classList.contains("hidden");
-        shouldResumeBackgroundOnVisible = revealIsVisible && !backgroundAudio.paused;
-        backgroundAudio.pause();
-        if (backClickAudio) {
-          backClickAudio.pause();
+        shouldResumeBackgroundOnVisible = !!currentMusicAudio && !currentMusicAudio.paused;
+        if (currentMusicAudio) {
+          currentMusicAudio.pause();
+        }
+        shouldResumeGreetingOnVisible = !!activeGreetingAudio && !activeGreetingAudio.paused;
+        if (activeGreetingAudio) {
+          activeGreetingAudio.pause();
         }
         return;
       }
 
-      if (shouldResumeBackgroundOnVisible && !revealSection.classList.contains("hidden")) {
-        safePlay(backgroundAudio);
+      if (shouldResumeBackgroundOnVisible && currentMusicAudio && currentMusicAudio.paused) {
+        safePlay(currentMusicAudio);
+      }
+      if (shouldResumeGreetingOnVisible && activeGreetingAudio && activeGreetingAudio.paused) {
+        safePlay(activeGreetingAudio, () => {
+          if (activeGreetingAudio) {
+            activeGreetingAudio.onended = null;
+            activeGreetingAudio = null;
+          }
+          shouldResumeGreetingOnVisible = false;
+        });
+      }
+      if (!revealSection.classList.contains("hidden")) {
+        ensureSlide2AutoPlay();
       }
     }
 
     function handleUserAudioResume() {
-      if (document.hidden || revealSection.classList.contains("hidden")) {
+      if (document.hidden) {
         return;
       }
-      if (shouldResumeBackgroundOnVisible && backgroundAudio.paused) {
-        safePlay(backgroundAudio);
+      if (currentMusicAudio && currentMusicAudio.paused) {
+        safePlay(currentMusicAudio);
+      }
+      if (activeGreetingAudio && activeGreetingAudio.paused) {
+        safePlay(activeGreetingAudio, () => {
+          if (activeGreetingAudio) {
+            activeGreetingAudio.onended = null;
+            activeGreetingAudio = null;
+          }
+          shouldResumeGreetingOnVisible = false;
+        });
+      }
+      if (!revealSection.classList.contains("hidden")) {
+        ensureSlide2AutoPlay();
       }
     }
 
@@ -1342,9 +2043,15 @@
       stopAllAudio();
     }
 
-    function safePlay(audio) {
+    function safePlay(audio, onBlocked) {
+      if (!audio) {
+        return;
+      }
       audio.play().catch(() => {
         // Một số trình duyệt có thể chặn autoplay ngoài tương tác người dùng.
+        if (typeof onBlocked === "function") {
+          onBlocked();
+        }
       });
     }
 
@@ -1353,15 +2060,6 @@
       // Force reflow để animation được phát lại khi cùng một class được thêm lại.
       void element.offsetWidth;
       element.classList.add(className);
-    }
-
-    function playBackClickVoice() {
-      if (!backClickAudio) {
-        return;
-      }
-      backClickAudio.pause();
-      backClickAudio.currentTime = 0;
-      safePlay(backClickAudio);
     }
 
     function safePlayLottie(player) {
@@ -1377,6 +2075,7 @@
     }
 
     function setImageWithFallback(imageEl, src, fallback) {
+      delete imageEl.dataset.fallbackTried;
       imageEl.onerror = () => {
         if (imageEl.dataset.fallbackTried === "1") {
           return;
@@ -1385,6 +2084,40 @@
         imageEl.src = fallback;
       };
       imageEl.src = src;
+    }
+
+    function setSlide2Media(src, fallbackImage) {
+      const useVideo = isVideoSource(src);
+      if (useVideo) {
+        slideImage2.classList.add("hidden");
+        slideVideo2.classList.remove("hidden");
+        slideVideo2.muted = true;
+        slideVideo2.loop = true;
+        if (slideVideo2.getAttribute("src") !== src) {
+          slideVideo2.setAttribute("src", src);
+          slideVideo2.load();
+        }
+        ensureSlide2AutoPlay();
+        return;
+      }
+
+      slideVideo2.pause();
+      slideVideo2.removeAttribute("src");
+      slideVideo2.load();
+      slideVideo2.classList.add("hidden");
+      slideImage2.classList.remove("hidden");
+      setImageWithFallback(slideImage2, src, fallbackImage);
+    }
+
+    function ensureSlide2AutoPlay() {
+      if (slideVideo2.classList.contains("hidden")) {
+        return;
+      }
+      slideVideo2
+        .play()
+        .catch(() => {
+          // Trình duyệt có thể chặn autoplay ngoài tương tác người dùng.
+        });
     }
 
     function setupKeyboardGuard() {
@@ -1428,6 +2161,50 @@
         .replace(/Đ/g, "d")
         .replace(/[^a-zA-Z0-9]/g, "")
         .toLowerCase();
+    }
+
+    function normalizeRelationKey(text) {
+      if (typeof text !== "string") {
+        return null;
+      }
+      const normalized = text
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "d")
+        .toLowerCase();
+
+      if (normalized === "anh") {
+        return "anh";
+      }
+      if (normalized === "chi") {
+        return "chi";
+      }
+      if (normalized === "em") {
+        return "em";
+      }
+      if (normalized === "cau") {
+        return "cau";
+      }
+      return null;
+    }
+
+    function buildGreetingAudios(voiceConfig) {
+      const relationKeys = ["anh", "chi", "em", "cau"];
+      const audios = {};
+      relationKeys.forEach((relationKey) => {
+        const voiceSrc = normalizeImagePath(voiceConfig && voiceConfig[relationKey]);
+        if (!voiceSrc) {
+          return;
+        }
+        const audio = new Audio(voiceSrc);
+        audio.volume = 1;
+        audio.loop = false;
+        audio.preload = "auto";
+        audios[relationKey] = audio;
+      });
+      return audios;
     }
 
     function buildGoogleCalendarUrl(eventData) {
