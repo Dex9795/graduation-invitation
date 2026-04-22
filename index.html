@@ -928,6 +928,15 @@
 
     // Mức giống nhau tối thiểu (0 -> 1) để chấp nhận tên gần đúng.
     const NAME_MATCH_THRESHOLD = 0.25;
+
+    // COMMAND: chỉnh ảnh mặc định khi tên không có trong danh sách hoặc thư mục ảnh bị thiếu.
+    // Ưu tiên `slide3Image`; nếu để trống thì dùng `groupId`.
+    const UNKNOWN_GUEST_FALLBACK = {
+      slide3Image: "./dsng/56/pencil_dai_gia_dinh.jpg",
+      groupId: "56",
+      relationKey: "cau"
+    };
+
     const DEFAULT_GUEST_RELATION_MAP = {
       "Lê Văn Anh Quốc": "em",
       "Nguyễn Thị Anh Thư": "em",
@@ -1002,7 +1011,7 @@
       "Nguyễn Minh Vũ": "cau",
       "Nguyễn Thu Hằng": "em",
       "Nguyễn Văn Trực": "cau",
-      "Trần Nhật Hoàng": "cau"
+      "Trần Nhật Hoàng": "cau",
     };
 
     // Nội dung popup "Vị trí để xe" (bạn có thể sửa tùy ý).
@@ -1013,7 +1022,7 @@
     const MESSAGE_CONTACT_URL = "https://m.me/doquoctan514";
 
     const DEFAULT_GUEST_GROUP_CONFIG = {
-      defaultGroup: "1",
+      defaultGroup: "56",
       fixedSlides: {
         slide1: "./dsng/bo_anh/1_thumoi.jpg",
         slide2: "./dsng/bo_anh/2_avt.mp4",
@@ -1077,6 +1086,7 @@
         "53": ["./dsng/53/pencil_xuan_phuong.jpg"],
         "54": ["./dsng/54/pencil_bao_han.jpg"],
         "55": ["./dsng/55/pencil_hong_ha.jpg"],
+        "56": ["./dsng/56/pencil_dai_gia_dinh.jpg"],
         "57": ["./dsng/57/pencil_anh_kha.jpg"],
         "58": ["./dsng/58/pencil_minh_vu.jpg"],
         "59": ["./dsng/59/pencil_thu_hang.jpg"],
@@ -1295,18 +1305,24 @@
       }
 
       const guestProfile = resolveGuestProfile(rawInput);
-      if (!guestProfile) {
-        showError("Tên chưa có trong danh sách hoặc nhập chưa đúng.");
-        return;
-      }
+      const relationKey = guestProfile
+        ? resolveRelationForProfile(guestProfile, rawInput)
+        : normalizeRelationKey(UNKNOWN_GUEST_FALLBACK.relationKey);
+      const normalizedRawInput = normalizeNameToCode(rawInput);
+      const exactInputGroupId = guestGroupLookup[normalizedRawInput] || null;
+      const isExactGroupZeroName = exactInputGroupId === "0";
+      const guestSlide3FromGroup =
+        guestProfile &&
+        (String(guestProfile.groupId) !== "0" || isExactGroupZeroName)
+          ? resolveSlidesByGroupId(guestProfile.groupId)
+          : null;
+      const guestSlide3 = guestSlide3FromGroup || resolveUnknownGuestFallbackSlide3();
 
-      const guestSlide3 = resolveSlidesByGroupId(guestProfile.groupId);
       if (!guestSlide3) {
-        showError("Tên chưa có trong danh sách hoặc nhập chưa đúng.");
+        showError("Không tìm thấy ảnh phù hợp. Bạn hãy chỉnh UNKNOWN_GUEST_FALLBACK trong code.");
         return;
       }
 
-      const relationKey = resolveRelationForProfile(guestProfile, rawInput);
       applyGuestSlides(guestSlide3);
       runReveal(relationKey);
     });
@@ -1672,6 +1688,17 @@
       }
       // Chỉ lấy một ảnh đại diện của nhóm để gắn vào vị trí ảnh số 3.
       return slides[0] || null;
+    }
+
+    function resolveUnknownGuestFallbackSlide3() {
+      const manualSlide3 = normalizeImagePath(UNKNOWN_GUEST_FALLBACK.slide3Image);
+      if (manualSlide3) {
+        return manualSlide3;
+      }
+      if (!UNKNOWN_GUEST_FALLBACK.groupId) {
+        return null;
+      }
+      return resolveSlidesByGroupId(UNKNOWN_GUEST_FALLBACK.groupId);
     }
 
     function resolveSlidesForGuest(guestName) {
